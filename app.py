@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, session
-from logic.user_logic import UserLogic
+from logic.client_logic import ClientLogic
 import bcrypt
 
 app = Flask(__name__)
@@ -16,9 +16,10 @@ def register():
     if request.method == "GET":
         return render_template("register.html")
     elif request.method == "POST":
-        logic = UserLogic()
-        userName = request.form["username"]
-        userEmail = request.form["useremail"]
+        logic = ClientLogic()
+        clientName = request.form["clientname"]
+        clientEmail = request.form["clientemail"]
+        clientCel = request.form["clientcel"]
         passwd = request.form["passwd"]
         confpasswd = request.form["confpasswd"]
         if passwd == confpasswd:
@@ -27,11 +28,10 @@ def register():
             encPasswd = passwd.encode("utf-8")
             hashPasswd = bcrypt.hashpw(encPasswd, salt)
             strPasswd = hashPasswd.decode("utf-8")
-            rows = logic.insertUser(userName, userEmail, strPasswd, strSalt)
+            rows = logic.insertClient(clientName, clientEmail, clientCel,strPasswd, strSalt)
             return redirect("login")
         else:
             return redirect("register")
-        return f"posted register rows: {rows}"
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -39,7 +39,7 @@ def login():
     if request.method == "GET":
         return render_template("login.html")
     elif request.method == "POST":
-        logic = UserLogic()
+        logic = ClientLogic()
         userEmail = request.form["useremail"]
         passwd = request.form["passwd"]
         userDict = logic.getUserByEmail(userEmail)
