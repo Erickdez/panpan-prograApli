@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, session
-from logic.user_logic import UserLogic
+from logic.client_logic import ClientLogic
 import bcrypt
 
 app = Flask(__name__)
@@ -16,9 +16,10 @@ def register():
     if request.method == "GET":
         return render_template("register.html")
     elif request.method == "POST":
-        logic = UserLogic()
-        userName = request.form["username"]
-        userEmail = request.form["useremail"]
+        logic = ClientLogic()
+        clientName = request.form["clientname"]
+        clientEmail = request.form["clientemail"]
+        clientCel = request.form["clientcel"]
         passwd = request.form["passwd"]
         confpasswd = request.form["confpasswd"]
         if passwd == confpasswd:
@@ -27,11 +28,10 @@ def register():
             encPasswd = passwd.encode("utf-8")
             hashPasswd = bcrypt.hashpw(encPasswd, salt)
             strPasswd = hashPasswd.decode("utf-8")
-            rows = logic.insertUser(userName, userEmail, strPasswd, strSalt)
+            rows = logic.insertClient(clientName, clientEmail, clientCel,strPasswd, strSalt)
             return redirect("login")
         else:
             return redirect("register")
-        return f"posted register rows: {rows}"
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -39,26 +39,27 @@ def login():
     if request.method == "GET":
         return render_template("login.html")
     elif request.method == "POST":
-        logic = UserLogic()
-        userEmail = request.form["useremail"]
+        logic = ClientLogic()
+        clientEmail = request.form["clientemail"]
         passwd = request.form["passwd"]
-        userDict = logic.getUserByEmail(userEmail)
-        salt = userDict["salt"].encode("utf-8")
+        clientDict = logic.getClientByEmail(clientEmail)
+        salt = clientDict["salt"].encode("utf-8")
         hashPasswd = bcrypt.hashpw(passwd.encode("utf-8"), salt)
-        dbPasswd = userDict["password"].encode("utf-8")
+        dbPasswd = clientDict["password"].encode("utf-8")
         if hashPasswd == dbPasswd:
-            session["login_user"] = userEmail
+            session["login_email"] = clientEmail
+            session["login_name"] = clientDict["name"]
             session["loggedIn"] = True
             return redirect("dashboard")
         else:
             return redirect("login")
-        return "posted login"
 
 
 @app.route("/logout")
 def logout():
     if session.get("loggedIn"):
-        session.pop("login_user")
+        session.pop("login_email")
+        session.pop("login_name")
         session.pop("loggedIn")
         return redirect("login")
     else:
@@ -68,8 +69,8 @@ def logout():
 @app.route("/dashboard")
 def dashboard():
     if session.get("loggedIn"):
-        user = session.get("login_user")
-        return render_template("dashboard.html", user=user)
+        client = session.get("login_name")
+        return render_template("dashboard.html", client=client)
     else:
         return redirect("login")
 

@@ -18,7 +18,7 @@ class ClientLogic(PybaLogic):
     def getClientByEmail(self, clientEmail):
         database = self.createDatabaseObj()
         sql = (
-            "SELECT email, password, salt "
+            "SELECT name, email, password, salt "
             + f"FROM panpanbd.clients where email like '{clientEmail}';"
         )
         result = database.executeQuery(sql)

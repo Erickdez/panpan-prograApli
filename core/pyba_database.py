@@ -4,10 +4,10 @@ import pymysql
 class PybaDatabase:
     def __init__(self):
         self.host = "localhost"
-        self.port = 3307
+        self.port = 3306
         self.user = "root"
         self.password = "root"
-        self.database = "testdb"
+        self.database = "panpanbd"
         self.connection = self.createConnection()
         self.cursor = self.createCursor()
 
