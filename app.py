@@ -40,25 +40,26 @@ def login():
         return render_template("login.html")
     elif request.method == "POST":
         logic = ClientLogic()
-        userEmail = request.form["useremail"]
+        clientEmail = request.form["clientemail"]
         passwd = request.form["passwd"]
-        userDict = logic.getUserByEmail(userEmail)
-        salt = userDict["salt"].encode("utf-8")
+        clientDict = logic.getClientByEmail(clientEmail)
+        salt = clientDict["salt"].encode("utf-8")
         hashPasswd = bcrypt.hashpw(passwd.encode("utf-8"), salt)
-        dbPasswd = userDict["password"].encode("utf-8")
+        dbPasswd = clientDict["password"].encode("utf-8")
         if hashPasswd == dbPasswd:
-            session["login_user"] = userEmail
+            session["login_email"] = clientEmail
+            session["login_name"] = clientDict["name"]
             session["loggedIn"] = True
             return redirect("dashboard")
         else:
             return redirect("login")
-        return "posted login"
 
 
 @app.route("/logout")
 def logout():
     if session.get("loggedIn"):
-        session.pop("login_user")
+        session.pop("login_email")
+        session.pop("login_name")
         session.pop("loggedIn")
         return redirect("login")
     else:
@@ -68,8 +69,8 @@ def logout():
 @app.route("/dashboard")
 def dashboard():
     if session.get("loggedIn"):
-        user = session.get("login_user")
-        return render_template("dashboard.html", user=user)
+        client = session.get("login_name")
+        return render_template("dashboard.html", client=client)
     else:
         return redirect("login")
 
