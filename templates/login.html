@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>login page</title>
+</head>
+
+<body>
+    <h1>login</h1>
+
+    <form action="{{ url_for('login') }}" method="post">
+        <label for="useremail">useremail:</label><br>
+        <input type="text" name="useremail" id="useremail">
+        <br><br>
+
+        <label for="passwd">password:</label><br>
+        <input type="password" name="passwd" id="passwd">
+        <br><br>
+
+        <input type="submit" value="Log in">
+    </form>
+</body>
+
+</html>
