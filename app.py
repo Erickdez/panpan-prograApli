@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, session
 from logic.client_logic import ClientLogic
+from logic.admin_logic import AdminLogic
 import bcrypt
 
 app = Flask(__name__)
@@ -43,14 +44,29 @@ def login():
         clientEmail = request.form["clientemail"]
         passwd = request.form["passwd"]
         clientDict = logic.getClientByEmail(clientEmail)
-        salt = clientDict["salt"].encode("utf-8")
-        hashPasswd = bcrypt.hashpw(passwd.encode("utf-8"), salt)
-        dbPasswd = clientDict["password"].encode("utf-8")
+
+        if clientDict == []:
+            logic = AdminLogic()
+            adminEmail = request.form["clientemail"]
+            passwd = request.form["passwd"]
+            adminDict = logic.getAdminByEmail(clientEmail)
+            salt = adminDict["salt"].encode("utf-8")
+            hashPasswd = bcrypt.hashpw(passwd.encode("utf-8"), salt)
+            dbPasswd = adminDict["password"].encode("utf-8")
+        else:
+            salt = clientDict["salt"].encode("utf-8")
+            hashPasswd = bcrypt.hashpw(passwd.encode("utf-8"), salt)
+            dbPasswd = clientDict["password"].encode("utf-8")
+        
         if hashPasswd == dbPasswd:
-            session["login_email"] = clientEmail
-            session["login_name"] = clientDict["name"]
-            session["loggedIn"] = True
-            return redirect("dashboard")
+            if clientDict == []:
+                session["login_email_admin"] = clientEmail
+                session["loggedIn"] = True
+                return redirect("dashboardAdmin")
+            else:
+                session["login_email_client"] = clientEmail
+                session["loggedIn"] = True
+                return redirect("dashboard")
         else:
             return redirect("login")
 
@@ -69,8 +85,16 @@ def logout():
 @app.route("/dashboard")
 def dashboard():
     if session.get("loggedIn"):
-        client = session.get("login_name")
-        return render_template("dashboard.html", client=client)
+        email = session.get("login_email_client")
+        return render_template("dashboard.html", email=email)
+    else:
+        return redirect("login")
+
+@app.route("/dashboardAdmin")
+def dashboardAdmin():
+    if session.get("loggedIn"):
+        email = session.get("login_email_admin")
+        return render_template("dashboardAdmin.html", email=email)
     else:
         return redirect("login")
 
