@@ -41,13 +41,13 @@ def login():
         return render_template("login.html")
     elif request.method == "POST":
         logic = ClientLogic()
-        clientEmail = request.form["clientemail"]
+        clientEmail = request.form["email"]
         passwd = request.form["passwd"]
         clientDict = logic.getClientByEmail(clientEmail)
 
         if clientDict == []:
             logic = AdminLogic()
-            adminEmail = request.form["clientemail"]
+            adminEmail = request.form["email"]
             passwd = request.form["passwd"]
             adminDict = logic.getAdminByEmail(clientEmail)
             salt = adminDict["salt"].encode("utf-8")
@@ -73,9 +73,12 @@ def login():
 
 @app.route("/logout")
 def logout():
-    if session.get("loggedIn"):
-        session.pop("login_email")
-        session.pop("login_name")
+    if session.get("loggedIn") and session.get("login_email_client") is not None:
+        session.pop("login_email_client")
+        session.pop("loggedIn")
+        return redirect("login")
+    elif session.get("loggedIn") and session.get("login_email_admin") is not None:
+        session.pop("login_email_admin")
         session.pop("loggedIn")
         return redirect("login")
     else:
