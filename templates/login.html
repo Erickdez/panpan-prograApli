@@ -6,10 +6,26 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PanPan - Log In</title>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 
 <body>
     <h1>Log In</h1>
+
+    <!-- Pondremos acá mensajes ya sea si da error o si el usuario justo está ingresando Pondremos
+    primera vez a la página -->
+    {% with messages = get_flashed_messages(with_categories = true) %}
+    
+    {% if messages %}
+
+        {% for category,message in messages %}
+        
+        <p>{{message}}</p>
+        {% endfor %}
+
+    {% endif %}
+
+    {% endwith %}
 
     <form action="{{ url_for('login') }}" method="post">
         <label for="email">Email:</label><br>
@@ -19,6 +35,7 @@
         <label for="passwd">Password:</label><br>
         <input type="password" name="passwd" id="passwd">
         <br><br>
+        <div class="g-recaptcha" data-sitekey="6LediG8bAAAAAH2w7iMvsnu25UZ_D9kSnCHaIYjB"></div>
 
         <input type="submit" value="Log in">
     </form>
